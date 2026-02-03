@@ -3,6 +3,7 @@ const Assignment = require('../models/Assignment');
 const Question = require('../models/Question');
 const { successResponse, errorResponse } = require('../utils/response');
 const { SubmissionResource, collection } = require('../resources');
+const { SUBMISSION_STATUSES, QUESTION_TYPES } = require('../constants/enums');
 
 // --- HÀM HELPER: Chấm điểm từng câu ---
 const checkAnswer = (question, studentAnswer) => {
@@ -10,18 +11,18 @@ const checkAnswer = (question, studentAnswer) => {
     const { type, content } = question;
 
     // 1. Trắc nghiệm (User gửi lên optionId: "A")
-    if (type === 'MULTIPLE_CHOICE') {
+    if (type === QUESTION_TYPES.MULTIPLE_CHOICE) {
       const correctOption = content.options.find((opt) => opt.isCorrect);
       return correctOption && correctOption.id === studentAnswer;
     }
 
     // 2. Đúng/Sai (User gửi lên boolean: true/false)
-    if (type === 'TRUE_FALSE') {
+    if (type === QUESTION_TYPES.TRUE_FALSE) {
       return content.isTrue === studentAnswer;
     }
 
     // 3. Typing (User gửi lên text: "Clean Architecture")
-    if (type === 'TYPING') {
+    if (type === QUESTION_TYPES.TYPING) {
       // So sánh không phân biệt hoa thường, xóa khoảng trắng thừa
       const userAnswerParams = studentAnswer.trim().toLowerCase();
       // Kiểm tra xem đáp án user có nằm trong danh sách từ khóa đúng không
@@ -31,7 +32,7 @@ const checkAnswer = (question, studentAnswer) => {
     }
 
     // 4. Sắp xếp (User gửi lên mảng index: [2, 0, 1])
-    if (type === 'ARRANGE') {
+    if (type === QUESTION_TYPES.ARRANGE) {
       // So sánh 2 mảng có giống hệt nhau không
       return (
         JSON.stringify(content.correctOrder) === JSON.stringify(studentAnswer)
@@ -114,7 +115,7 @@ exports.submitAssignment = async (req, res) => {
         studentId: req.user.id,
         score: finalScore10,
         details,
-        status: 'SUBMITTED', // Có thể check logic nộp muộn (LATE) ở đây
+        status: SUBMISSION_STATUSES.SUBMITTED, // Có thể check logic nộp muộn (LATE) ở đây
       });
     }
 

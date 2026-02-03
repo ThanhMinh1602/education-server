@@ -6,6 +6,7 @@ const {
   errorResponse,
 } = require('../utils/response');
 const { UserResource, collection } = require('../resources');
+const { USER_ROLES } = require('../constants/enums');
 
 // @desc    Lấy danh sách tất cả học viên (Có tìm kiếm)
 // @route   GET /api/users
@@ -20,7 +21,7 @@ exports.getStudents = async (req, res) => {
 
     // 2. Xây dựng bộ lọc
     const query = {
-      role: 'student',
+      role: USER_ROLES.STUDENT,
       ...(keyword
         ? {
             $or: [
@@ -98,7 +99,7 @@ exports.createUser = async (req, res) => {
       name,
       username,
       password: hashedPassword,
-      role: 'student', // Mặc định tạo ra là student
+      role: USER_ROLES.STUDENT, // Mặc định tạo ra là student
     });
 
     successResponse(res, UserResource(user), 'Tạo học viên thành công', 201);

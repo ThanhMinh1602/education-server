@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { QUESTION_TYPES, QUESTION_TYPE_VALUES } = require('../constants/enums');
 
 /**
  * @swagger
@@ -72,7 +73,7 @@ const questionSchema = new mongoose.Schema(
     // Loại câu hỏi (4 loại như yêu cầu)
     type: {
       type: String,
-      enum: ['MULTIPLE_CHOICE', 'ARRANGE', 'TRUE_FALSE', 'TYPING'],
+      enum: QUESTION_TYPE_VALUES,
       required: true,
     },
 

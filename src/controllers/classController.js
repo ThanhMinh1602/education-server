@@ -6,6 +6,7 @@ const {
   listResponse,
 } = require('../utils/response');
 const { ClassResource, UserResource, collection } = require('../resources');
+const { USER_ROLES } = require('../constants/enums');
 
 // --- HÀM HELPER: Sinh mã lớp ngẫu nhiên (6 ký tự) ---
 const generateClassCode = async () => {
@@ -63,10 +64,10 @@ exports.getClasses = async (req, res) => {
     let query = {};
 
     // Logic phân quyền xem danh sách
-    if (req.user.role === 'teacher') {
+    if (req.user.role === USER_ROLES.TEACHER) {
       // Giáo viên: Chỉ thấy lớp mình dạy
       query = { teacherId: req.user.id };
-    } else if (req.user.role === 'student') {
+    } else if (req.user.role === USER_ROLES.STUDENT) {
       // Học viên: Chỉ thấy lớp mình đang tham gia
       query = { studentIds: req.user.id };
     }
@@ -107,9 +108,12 @@ exports.getClassById = async (req, res) => {
     }
 
     // Bảo mật: Học viên không thuộc lớp này thì không được xem chi tiết (Tùy logic dự án)
-    // if (req.user.role === 'student' && !classData.studentIds.some(s => s._id.equals(req.user.id))) {
-    //   return errorResponse(res, 'Bạn không phải thành viên của lớp này', 403);
-    // }
+    if (
+      req.user.role === USER_ROLES.STUDENT &&
+      !classData.studentIds.some((s) => s._id.equals(req.user.id))
+    ) {
+      return errorResponse(res, 'Bạn không phải thành viên của lớp này', 403);
+    }
 
     return successResponse(
       res,
@@ -175,7 +179,7 @@ exports.deleteClass = async (req, res) => {
 
     // Chỉ giáo viên sở hữu hoặc admin mới được xóa
     if (
-      req.user.role !== 'admin' &&
+      req.user.role !== USER_ROLES.ADMIN &&
       classData.teacherId.toString() !== req.user.id
     ) {
       return errorResponse(res, 'Bạn không có quyền xóa lớp này', 403);

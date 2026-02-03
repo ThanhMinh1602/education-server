@@ -12,6 +12,7 @@ const {
   QuestionResource,
   collection,
 } = require('../resources');
+const { USER_ROLES } = require('../constants/enums');
 
 // =========================================================
 // PHẦN 1: QUẢN LÝ LEVEL (CẤP ĐỘ)
@@ -88,7 +89,7 @@ exports.getPacks = async (req, res) => {
 
     // Nếu là Học viên -> Chỉ xem được gói Public hoặc gói của GV mình (Logic này mở rộng sau)
     // Hiện tại tạm để: Ai cũng xem được gói Public, GV xem được gói của mình
-    if (req.user.role === 'teacher') {
+    if (req.user.role === USER_ROLES.TEACHER) {
       query = { $or: [{ isPublic: true }, { teacherId: req.user.id }] };
     } else {
       query = { isPublic: true };
@@ -128,7 +129,7 @@ exports.createQuestion = async (req, res) => {
 
     // 2. Kiểm tra quyền (Chỉ người tạo gói mới được thêm câu hỏi)
     if (
-      req.user.role !== 'admin' &&
+      req.user.role !== USER_ROLES.ADMIN &&
       pack.teacherId.toString() !== req.user.id
     ) {
       return errorResponse(res, 'Bạn không có quyền sửa gói này', 403);

@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const {
+  SUBMISSION_STATUSES,
+  SUBMISSION_STATUS_VALUES,
+} = require('../constants/enums');
 
 /**
  * @swagger
@@ -87,8 +91,8 @@ const submissionSchema = new mongoose.Schema(
     // Trạng thái bài nộp
     status: {
       type: String,
-      enum: ['SUBMITTED', 'LATE', 'GRADED'],
-      default: 'SUBMITTED',
+      enum: SUBMISSION_STATUS_VALUES,
+      default: SUBMISSION_STATUSES.SUBMITTED,
     },
   },
   { timestamps: true },

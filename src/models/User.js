@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { USER_ROLES, USER_ROLE_VALUES } = require('../constants/enums');
 
 /**
  * @swagger
@@ -65,8 +66,8 @@ const userSchema = new mongoose.Schema(
     // Phân quyền: Học viên, Giáo viên, hoặc Quản trị viên
     role: {
       type: String,
-      enum: ['student', 'admin', 'teacher'],
-      default: 'student',
+      enum: USER_ROLE_VALUES,
+      default: USER_ROLES.STUDENT,
     },
 
     // Link ảnh đại diện

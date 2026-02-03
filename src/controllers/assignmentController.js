@@ -11,6 +11,7 @@ const {
   SubmissionResource,
   collection,
 } = require('../resources');
+const { USER_ROLES, ASSIGNMENT_STATUSES } = require('../constants/enums');
 
 // @desc    Giáo viên giao bài tập cho lớp
 // @route   POST /api/assignments
@@ -22,7 +23,7 @@ exports.createAssignment = async (req, res) => {
     const classCheck = await Class.findById(classId);
     if (!classCheck) return errorResponse(res, 'Lớp học không tồn tại', 404);
     if (
-      req.user.role !== 'admin' &&
+      req.user.role !== USER_ROLES.ADMIN &&
       classCheck.teacherId.toString() !== req.user.id
     ) {
       return errorResponse(res, 'Bạn không có quyền giao bài cho lớp này', 403);
@@ -59,7 +60,7 @@ exports.getAssignments = async (req, res) => {
     let query = {};
 
     // 1. Nếu là Giáo viên: Xem các bài mình đã giao
-    if (req.user.role === 'teacher') {
+    if (req.user.role === USER_ROLES.TEACHER) {
       query = { teacherId: req.user.id };
 
       const [assignments, total] = await Promise.all([
@@ -76,7 +77,7 @@ exports.getAssignments = async (req, res) => {
 
     // 2. Nếu là Học viên: Xem bài tập của các lớp mình đang học
     // Logic: Lấy Assignment -> Kèm theo trạng thái đã làm hay chưa (Submission)
-    if (req.user.role === 'student') {
+    if (req.user.role === USER_ROLES.STUDENT) {
       // B1: Lấy danh sách ID lớp mình đang học
       const myClassIds = req.user.classes;
 
@@ -106,7 +107,7 @@ exports.getAssignments = async (req, res) => {
           return {
             ...ass,
             mySubmission: submission || null, // Nếu null nghĩa là chưa làm
-            status: submission ? submission.status : 'TODO', // TODO, SUBMITTED
+            status: submission ? submission.status : ASSIGNMENT_STATUSES.TODO, // TODO, SUBMITTED
           };
         }),
       );

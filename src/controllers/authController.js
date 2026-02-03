@@ -2,6 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { successResponse, errorResponse } = require('../utils/response');
+const { USER_ROLES } = require('../constants/enums');
 
 // --- HELPER FUNCTIONS ---
 const generateAccessToken = (id) => {
@@ -31,7 +32,7 @@ exports.register = async (req, res) => {
       name,
       username,
       password: hashedPassword,
-      role: role || 'student',
+      role: role || USER_ROLES.STUDENT,
     });
 
     if (user) {
