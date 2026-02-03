@@ -48,6 +48,18 @@ router.use(protect);
  *               dueDate:
  *                 type: string
  *                 format: date-time
+ *               settings:
+ *                 type: object
+ *                 properties:
+ *                   showResultImmediately:
+ *                     type: boolean
+ *                     default: true
+ *                   maxAttempts:
+ *                     type: number
+ *                     default: 1
+ *                   durationMinutes:
+ *                     type: number
+ *                     default: 45
  *     responses:
  *       201:
  *         description: Created

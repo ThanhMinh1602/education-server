@@ -5,6 +5,7 @@ const {
   errorResponse,
   listResponse,
 } = require('../utils/response');
+const { ClassResource, UserResource, collection } = require('../resources');
 
 // --- HÀM HELPER: Sinh mã lớp ngẫu nhiên (6 ký tự) ---
 const generateClassCode = async () => {
@@ -40,7 +41,12 @@ exports.createClass = async (req, res) => {
       teacherId: req.user.id, // Lấy ID của giáo viên đang login
     });
 
-    return successResponse(res, newClass, 'Tạo lớp học thành công', 201);
+    return successResponse(
+      res,
+      ClassResource(newClass),
+      'Tạo lớp học thành công',
+      201,
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -105,7 +111,11 @@ exports.getClassById = async (req, res) => {
     //   return errorResponse(res, 'Bạn không phải thành viên của lớp này', 403);
     // }
 
-    return successResponse(res, classData, 'Lấy thông tin lớp thành công');
+    return successResponse(
+      res,
+      ClassResource(classData),
+      'Lấy thông tin lớp thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -143,7 +153,11 @@ exports.joinClass = async (req, res) => {
       $push: { classes: classToJoin._id },
     });
 
-    return successResponse(res, classToJoin, 'Tham gia lớp học thành công');
+    return successResponse(
+      res,
+      ClassResource(classToJoin),
+      'Tham gia lớp học thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -198,7 +212,11 @@ exports.removeStudent = async (req, res) => {
       $pull: { classes: classId },
     });
 
-    return successResponse(res, updatedClass, 'Đã xóa học viên khỏi lớp');
+    return successResponse(
+      res,
+      ClassResource(updatedClass),
+      'Đã xóa học viên khỏi lớp',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }

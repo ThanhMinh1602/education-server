@@ -6,6 +6,12 @@ const {
   errorResponse,
   listResponse,
 } = require('../utils/response');
+const {
+  LevelResource,
+  QuestionPackResource,
+  QuestionResource,
+  collection,
+} = require('../resources');
 
 // =========================================================
 // PHẦN 1: QUẢN LÝ LEVEL (CẤP ĐỘ)
@@ -16,7 +22,12 @@ exports.createLevel = async (req, res) => {
   try {
     const { name, description, order } = req.body;
     const level = await Level.create({ name, description, order });
-    return successResponse(res, level, 'Tạo cấp độ thành công', 201);
+    return successResponse(
+      res,
+      LevelResource(level),
+      'Tạo cấp độ thành công',
+      201,
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -26,7 +37,11 @@ exports.createLevel = async (req, res) => {
 exports.getLevels = async (req, res) => {
   try {
     const levels = await Level.find({ isActive: true }).sort({ order: 1 });
-    return successResponse(res, levels, 'Lấy danh sách cấp độ thành công');
+    return successResponse(
+      res,
+      collection(levels, LevelResource),
+      'Lấy danh sách cấp độ thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -50,7 +65,12 @@ exports.createPack = async (req, res) => {
       teacherId: req.user.id,
     });
 
-    return successResponse(res, pack, 'Tạo gói câu hỏi thành công', 201);
+    return successResponse(
+      res,
+      QuestionPackResource(pack),
+      'Tạo gói câu hỏi thành công',
+      201,
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -126,7 +146,12 @@ exports.createQuestion = async (req, res) => {
     pack.totalQuestions += 1;
     await pack.save();
 
-    return successResponse(res, question, 'Thêm câu hỏi thành công', 201);
+    return successResponse(
+      res,
+      QuestionResource(question),
+      'Thêm câu hỏi thành công',
+      201,
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -141,7 +166,7 @@ exports.getQuestionsByPack = async (req, res) => {
 
     return successResponse(
       res,
-      questions,
+      collection(questions, QuestionResource),
       `Lấy thành công ${questions.length} câu hỏi`,
     );
   } catch (error) {

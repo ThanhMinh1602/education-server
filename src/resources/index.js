@@ -13,3 +13,12 @@ exports.collection = (array, resourceFunc) => {
   }
   return resourceFunc(array);
 };
+
+// Export tất cả resources để dễ import
+exports.UserResource = require('./userResource');
+exports.ClassResource = require('./classResource');
+exports.AssignmentResource = require('./assignmentResource');
+exports.QuestionResource = require('./questionResource');
+exports.SubmissionResource = require('./submissionResource');
+exports.QuestionPackResource = require('./questionPackResource');
+exports.LevelResource = require('./levelResource');

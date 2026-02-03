@@ -47,6 +47,8 @@ router.use(protect);
  *             properties:
  *               name:
  *                 type: string
+ *               description:
+ *                 type: string
  *               order:
  *                 type: integer
  *     responses:
@@ -96,6 +98,10 @@ router
  *                 type: string
  *               levelId:
  *                 type: string
+ *               description:
+ *                 type: string
+ *               thumbnail:
+ *                 type: string
  *               isPublic:
  *                 type: boolean
  *     responses:
@@ -136,15 +142,10 @@ router
  *               content:
  *                 type: object
  *                 description: JSON tuỳ thuộc vào type câu hỏi
- *                 example:
- *                   question: "1 + 1 = ?"
- *                   options:
- *                     - id: 1
- *                       text: "2"
- *                       isCorrect: true
- *                     - id: 2
- *                       text: "3"
- *                       isCorrect: false
+ *               point:
+ *                 type: number
+ *                 default: 1
+ *                 example: 1
  *     responses:
  *       201:
  *         description: Created

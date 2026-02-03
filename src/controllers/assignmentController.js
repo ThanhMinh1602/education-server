@@ -6,6 +6,11 @@ const {
   errorResponse,
   listResponse,
 } = require('../utils/response');
+const {
+  AssignmentResource,
+  SubmissionResource,
+  collection,
+} = require('../resources');
 
 // @desc    Giáo viên giao bài tập cho lớp
 // @route   POST /api/assignments
@@ -32,7 +37,12 @@ exports.createAssignment = async (req, res) => {
       settings,
     });
 
-    return successResponse(res, assignment, 'Giao bài tập thành công', 201);
+    return successResponse(
+      res,
+      AssignmentResource(assignment),
+      'Giao bài tập thành công',
+      201,
+    );
   } catch (error) {
     return errorResponse(res, error);
   }

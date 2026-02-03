@@ -22,8 +22,7 @@ exports.register = async (req, res) => {
     const { name, username, password, role } = req.body;
 
     const userExists = await User.findOne({ username });
-    if (userExists)
-      return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại' });
+    if (userExists) return errorResponse(res, 'Tên đăng nhập đã tồn tại', 400);
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -66,17 +65,16 @@ exports.login = async (req, res) => {
       user.refreshToken = refreshToken;
       await user.save();
 
-      res.json({
-        success: true,
-        user,
-        accessToken,
-        refreshToken,
-      });
+      return successResponse(
+        res,
+        { user, accessToken, refreshToken },
+        'Đăng nhập thành công',
+      );
     } else {
-      res.status(401).json({ message: 'Sai thông tin đăng nhập' });
+      return errorResponse(res, 'Sai thông tin đăng nhập', 401);
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error);
   }
 };
 
@@ -86,7 +84,7 @@ exports.refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
-    return res.status(401).json({ message: 'Chưa gửi Refresh Token' });
+    return errorResponse(res, 'Chưa gửi Refresh Token', 401);
   }
 
   try {
@@ -107,9 +105,13 @@ exports.refreshToken = async (req, res) => {
     // 4. Cấp Access Token mới
     const newAccessToken = generateAccessToken(user._id);
 
-    res.json({ accessToken: newAccessToken });
+    return successResponse(
+      res,
+      { accessToken: newAccessToken },
+      'Lấy Access Token mới thành công',
+    );
   } catch (error) {
-    return res.status(403).json({ message: 'Refresh Token hết hạn hoặc lỗi' });
+    return errorResponse(res, 'Refresh Token hết hạn hoặc lỗi', 403);
   }
 };
 
@@ -122,8 +124,8 @@ exports.logout = async (req, res) => {
     // Tìm user và xóa refresh token đi
     await User.findByIdAndUpdate(userId, { refreshToken: null });
 
-    res.json({ message: 'Đăng xuất thành công' });
+    return successResponse(res, null, 'Đăng xuất thành công');
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error);
   }
 };

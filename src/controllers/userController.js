@@ -5,6 +5,7 @@ const {
   successResponse,
   errorResponse,
 } = require('../utils/response');
+const { UserResource, collection } = require('../resources');
 
 // @desc    Lấy danh sách tất cả học viên (Có tìm kiếm)
 // @route   GET /api/users
@@ -40,8 +41,14 @@ exports.getStudents = async (req, res) => {
       User.countDocuments(query), // Đếm tổng số thỏa mãn điều kiện
     ]);
 
-    // 4. Trả về chuẩn format List
-    return listResponse(res, students, total, page, limit);
+    // 4. Trả về chuẩn format List (đã format bằng UserResource)
+    return listResponse(
+      res,
+      collection(students, UserResource),
+      total,
+      page,
+      limit,
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -60,7 +67,11 @@ exports.getUserById = async (req, res) => {
       return errorResponse(res, 'Không tìm thấy người dùng', 404);
     }
 
-    successResponse(res, user, 'Lấy thông tin học viên thành công');
+    successResponse(
+      res,
+      UserResource(user),
+      'Lấy thông tin học viên thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -90,7 +101,7 @@ exports.createUser = async (req, res) => {
       role: 'student', // Mặc định tạo ra là student
     });
 
-    successResponse(res, user, 'Tạo học viên thành công', 201);
+    successResponse(res, UserResource(user), 'Tạo học viên thành công', 201);
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -120,7 +131,11 @@ exports.updateUser = async (req, res) => {
 
     const updatedUser = await user.save();
 
-    successResponse(res, updatedUser, 'Cập nhật thông tin học viên thành công');
+    successResponse(
+      res,
+      UserResource(updatedUser),
+      'Cập nhật thông tin học viên thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -152,7 +167,11 @@ exports.getMe = async (req, res) => {
       .select('-password')
       .populate('classes', 'name code thumbnail'); // Load luôn tên lớp để hiện lên App
 
-    return successResponse(res, user, 'Lấy thông tin cá nhân thành công');
+    return successResponse(
+      res,
+      UserResource(user),
+      'Lấy thông tin cá nhân thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }

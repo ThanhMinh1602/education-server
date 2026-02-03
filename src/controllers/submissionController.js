@@ -2,6 +2,7 @@ const Submission = require('../models/Submission');
 const Assignment = require('../models/Assignment');
 const Question = require('../models/Question');
 const { successResponse, errorResponse } = require('../utils/response');
+const { SubmissionResource, collection } = require('../resources');
 
 // --- HÀM HELPER: Chấm điểm từng câu ---
 const checkAnswer = (question, studentAnswer) => {
@@ -138,7 +139,11 @@ exports.getSubmissionHistory = async (req, res) => {
 
     if (!submission) return errorResponse(res, 'Bạn chưa làm bài tập này', 404);
 
-    return successResponse(res, submission, 'Lấy lịch sử làm bài thành công');
+    return successResponse(
+      res,
+      SubmissionResource(submission),
+      'Lấy lịch sử làm bài thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }
