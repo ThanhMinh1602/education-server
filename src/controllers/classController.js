@@ -24,22 +24,31 @@ const generateClassCode = async () => {
   }
   return code;
 };
-
 // @desc    Tạo lớp học mới (Giáo viên)
 // @route   POST /api/classes
 exports.createClass = async (req, res) => {
   try {
     const { name, description, thumbnail } = req.body;
 
-    // Tự động sinh mã lớp
+    // 1️⃣ Kiểm tra trùng tên lớp (theo giáo viên)
+    const existedClass = await Class.findOne({
+      name: name.trim(),
+      teacherId: req.user.id,
+    });
+
+    if (existedClass) {
+      return errorResponse(res, 'Tên lớp đã tồn tại', 400);
+    }
+
+    // 2️⃣ Tự động sinh mã lớp
     const code = await generateClassCode();
 
     const newClass = await Class.create({
-      name,
+      name: name.trim(),
       description,
       thumbnail,
       code,
-      teacherId: req.user.id, // Lấy ID của giáo viên đang login
+      teacherId: req.user.id,
     });
 
     return successResponse(
@@ -84,7 +93,7 @@ exports.getClasses = async (req, res) => {
 
     return listResponse(
       res,
-      classes,
+      collection(classes, ClassResource),
       total,
       page,
       limit,

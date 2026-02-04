@@ -14,7 +14,7 @@ const { protect, authorize } = require('../middlewares/authMiddleware');
 
 // Áp dụng bảo vệ cho tất cả các route bên dưới
 router.use(protect);
-router.use(authorize('teacher', 'admin'));
+router.use(authorize('teacher', 'admin', 'student'));
 /**
  * @swagger
  * tags:

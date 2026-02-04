@@ -16,14 +16,15 @@ const generateRefreshToken = (id) => {
     expiresIn: process.env.JWT_REFRESH_EXPIRE,
   });
 };
-
 // @desc    Đăng ký
 exports.register = async (req, res) => {
   try {
     const { name, username, password, role } = req.body;
 
     const userExists = await User.findOne({ username });
-    if (userExists) return errorResponse(res, 'Tên đăng nhập đã tồn tại', 400);
+    if (userExists) {
+      return errorResponse(res, 'Tên đăng nhập đã tồn tại', 400);
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -35,17 +36,22 @@ exports.register = async (req, res) => {
       role: role || USER_ROLES.STUDENT,
     });
 
-    if (user) {
-      // Tạo bộ đôi token
-      const accessToken = generateAccessToken(user._id);
-      const refreshToken = generateRefreshToken(user._id);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
-      // Lưu Refresh Token vào DB để quản lý (Logout sẽ xóa nó đi)
-      user.refreshToken = refreshToken;
-      await user.save();
+    user.refreshToken = refreshToken;
+    await user.save();
 
-      return successResponse(res, { user, token }, 'Đăng nhập thành công');
-    }
+    return successResponse(
+      res,
+      {
+        user,
+        accessToken,
+        refreshToken,
+      },
+      'Đăng ký thành công',
+      201,
+    );
   } catch (error) {
     return errorResponse(res, error, 500);
   }

@@ -14,7 +14,7 @@ const questionPackResource = (pack) => {
     thumbnail: pack.thumbnail || '',
 
     // Thông tin cấp độ
-    levelId: pack.levelId,
+    levelId: pack.levelId._id,
     levelName: pack.levelId?.name || '',
 
     // Thông tin giáo viên tạo (format bằng userResource)

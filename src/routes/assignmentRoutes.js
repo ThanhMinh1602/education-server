@@ -3,6 +3,9 @@ const router = express.Router();
 const {
   createAssignment,
   getAssignments,
+  getAssignmentById,
+  updateAssignment,
+  deleteAssignment,
 } = require('../controllers/assignmentController');
 const {
   submitAssignment,
@@ -11,6 +14,7 @@ const {
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
 router.use(protect);
+
 /**
  * @swagger
  * tags:
@@ -62,10 +66,10 @@ router.use(protect);
  *                     default: 45
  *     responses:
  *       201:
- *         description: Created
+ *         description: Giao bài thành công
  *
  *   get:
- *     summary: Lấy danh sách bài tập (GV xem bài đã giao, HS xem bài cần làm)
+ *     summary: Lấy danh sách bài tập (GV -> bài đã giao, HS -> bài cần làm)
  *     tags: [Assignments]
  *     security:
  *       - bearerAuth: []
@@ -77,6 +81,73 @@ router
   .route('/')
   .post(authorize('teacher', 'admin'), createAssignment)
   .get(getAssignments);
+
+/**
+ * @swagger
+ * /assignments/{id}:
+ *   get:
+ *     summary: Xem chi tiết bài tập
+ *     tags: [Assignments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *
+ *   put:
+ *     summary: Cập nhật bài tập
+ *     tags: [Assignments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               dueDate:
+ *                 type: string
+ *                 format: date-time
+ *               settings:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công
+ *
+ *   delete:
+ *     summary: Xóa bài tập (Xóa cả bài nộp của HS)
+ *     tags: [Assignments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Xóa thành công
+ */
+router
+  .route('/:id')
+  .get(getAssignmentById)
+  .put(authorize('teacher', 'admin'), updateAssignment)
+  .delete(authorize('teacher', 'admin'), deleteAssignment);
 
 // ======================= SUBMIT ASSIGNMENT =======================
 
@@ -92,7 +163,6 @@ router
  *       - in: path
  *         name: id
  *         required: true
- *         description: Assignment ID
  *         schema:
  *           type: string
  *     requestBody:
@@ -111,10 +181,10 @@ router
  *                       type: string
  *                     answer:
  *                       type: object
- *                       description: String, Boolean hoặc Array tùy loại câu hỏi
+ *                       description: String | Boolean | Array (tùy loại câu hỏi)
  *     responses:
  *       200:
- *         description: Nộp thành công, trả về điểm số
+ *         description: Nộp bài thành công
  */
 router.post('/:id/submit', authorize('student'), submitAssignment);
 
@@ -124,7 +194,7 @@ router.post('/:id/submit', authorize('student'), submitAssignment);
  * @swagger
  * /assignments/{id}/history:
  *   get:
- *     summary: Xem lại kết quả bài đã làm
+ *     summary: Xem lại lịch sử làm bài
  *     tags: [Assignments]
  *     security:
  *       - bearerAuth: []

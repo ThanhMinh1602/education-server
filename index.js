@@ -10,6 +10,7 @@ const userRoutes = require('./src/routes/userRoutes');
 const classRoutes = require('./src/routes/classRoutes');
 const questionRoutes = require('./src/routes/questionRoutes');
 const assignmentRoutes = require('./src/routes/assignmentRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/content', questionRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/upload', uploadRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

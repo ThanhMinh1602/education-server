@@ -118,3 +118,130 @@ exports.getAssignments = async (req, res) => {
     return errorResponse(res, error);
   }
 };
+// ... (Các code cũ giữ nguyên)
+
+// =========================================================
+// PHẦN BỔ SUNG: GET DETAIL, UPDATE, DELETE
+// =========================================================
+
+// @desc    Lấy chi tiết 1 bài tập
+// @route   GET /api/assignments/:id
+exports.getAssignmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    let assignment = await Assignment.findById(id)
+      .populate('classId', 'name')
+      .populate('questionPackId', 'title thumbnail totalQuestions')
+      .lean();
+
+    if (!assignment) return errorResponse(res, 'Bài tập không tồn tại', 404);
+
+    // 1. Check quyền: Học viên phải thuộc lớp đó mới được xem
+    if (req.user.role === USER_ROLES.STUDENT) {
+      const isInClass = req.user.classes.some(
+        (c) => c.toString() === assignment.classId._id.toString(),
+      );
+
+      if (!isInClass) {
+        return errorResponse(res, 'Bạn không thuộc lớp học này', 403);
+      }
+
+      // Nếu là học viên -> Kèm thêm thông tin Submission của họ
+      const submission = await Submission.findOne({
+        assignmentId: id,
+        studentId: req.user.id,
+      }).select('score status submittedAt');
+
+      assignment = {
+        ...assignment,
+        mySubmission: submission || null,
+        status: submission ? submission.status : ASSIGNMENT_STATUSES.TODO,
+      };
+    }
+
+    // 2. Check quyền: Giáo viên phải là người tạo (hoặc Admin)
+    if (
+      req.user.role === USER_ROLES.TEACHER &&
+      assignment.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền xem bài tập này', 403);
+    }
+
+    return successResponse(res, assignment, 'Lấy chi tiết bài tập thành công');
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
+// @desc    Cập nhật bài tập (Gia hạn, đổi tên...)
+// @route   PUT /api/assignments/:id
+exports.updateAssignment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, dueDate, settings, questionPackId } = req.body;
+
+    let assignment = await Assignment.findById(id);
+    if (!assignment) return errorResponse(res, 'Bài tập không tồn tại', 404);
+
+    // Check quyền: Chỉ giáo viên tạo bài (hoặc Admin) mới được sửa
+    if (
+      req.user.role !== USER_ROLES.ADMIN &&
+      assignment.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền sửa bài tập này', 403);
+    }
+
+    // Cập nhật dữ liệu
+    assignment.title = title || assignment.title;
+    assignment.dueDate = dueDate || assignment.dueDate;
+    assignment.settings = settings || assignment.settings;
+
+    // Lưu ý: Nếu đổi questionPackId, cần cân nhắc kỹ nếu đã có học sinh nộp bài
+    if (questionPackId) assignment.questionPackId = questionPackId;
+
+    await assignment.save();
+
+    return successResponse(
+      res,
+      AssignmentResource(assignment),
+      'Cập nhật bài tập thành công',
+    );
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
+// @desc    Xóa bài tập (Kèm xóa các bài nộp liên quan)
+// @route   DELETE /api/assignments/:id
+exports.deleteAssignment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const assignment = await Assignment.findById(id);
+    if (!assignment) return errorResponse(res, 'Bài tập không tồn tại', 404);
+
+    // Check quyền
+    if (
+      req.user.role !== USER_ROLES.ADMIN &&
+      assignment.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền xóa bài tập này', 403);
+    }
+
+    // 1. Xóa tất cả Submissions (Bài làm) của học sinh liên quan đến bài tập này
+    // Để tránh dữ liệu rác
+    await Submission.deleteMany({ assignmentId: id });
+
+    // 2. Xóa bài tập
+    await assignment.deleteOne();
+
+    return successResponse(
+      res,
+      null,
+      'Đã xóa bài tập và toàn bộ bài nộp liên quan',
+    );
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
