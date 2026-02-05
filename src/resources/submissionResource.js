@@ -1,5 +1,7 @@
 const userResource = require('./userResource');
 const assignmentResource = require('./assignmentResource');
+const questionResource = require('./questionResource');
+const { collection } = require('./index');
 
 const submissionResource = (submission) => {
   if (!submission) return null;
@@ -20,12 +22,23 @@ const submissionResource = (submission) => {
 
     score: submission.score,
     submittedAt: submission.submittedAt,
+    details: Array.isArray(submission.details)
+      ? submission.details.map((detail) => {
+          return {
+            // Tái sử dụng QuestionResource để format câu hỏi gốc
+            // Lưu ý: detail.questionId trong DB chính là Object Question đã được populate
+            question: questionResource(detail.questionId),
 
-    // Chi tiết từng câu trả lời (giữ nguyên structure)
-    details: submission.details || [],
+            // Câu trả lời của học sinh
+            studentAnswer: detail.studentAnswer,
 
+            // Kết quả chấm
+            isCorrect: detail.isCorrect,
+            earnedPoint: detail.earnedPoint,
+          };
+        })
+      : [],
     status: submission.status,
-
     createdAt: submission.createdAt,
     updatedAt: submission.updatedAt,
   };

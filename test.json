@@ -1,0 +1,320 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "Lấy lịch sử làm bài thành công",
+  "data": {
+    "id": "698411ff766259efbfb84d82",
+    "assignmentId": "6984042c96a296101e04955c",
+    "student": "6983538f8d8457b5092a1018",
+    "score": 9,
+    "submittedAt": "2026-02-05T04:00:50.223Z",
+    "details": [
+      {
+        "questionId": {
+          "_id": "69838c6cd5038c6389b199e5",
+          "packId": "6983881e8dee6a3f1d4fb77e",
+          "type": "MULTIPLE_CHOICE",
+          "point": 1,
+          "mediaUrl": "https://pixabay.com/images/download/bluesnap-long-peppers-9523561_1920.jpg",
+          "mediaPublicId": "education_app/peppers_sample",
+          "mediaType": "IMAGE",
+          "explanation": "Trong tiếng Trung, '辣椒' (Làjiāo) nghĩa là quả ớt. Các từ còn lại: Píngguǒ (Táo), Xiāngjiāo (Chuối), Xīguā (Dưa hấu).",
+          "content": {
+            "question": "Hình ảnh này tương ứng với từ vựng nào?",
+            "options": [
+              {
+                "id": "A",
+                "text": "苹果 (Píngguǒ)",
+                "isCorrect": false
+              },
+              {
+                "id": "B",
+                "text": "辣椒 (Làjiāo)",
+                "isCorrect": true
+              },
+              {
+                "id": "C",
+                "text": "香蕉 (Xiāngjiāo)",
+                "isCorrect": false
+              },
+              {
+                "id": "D",
+                "text": "西瓜 (Xīguā)",
+                "isCorrect": false
+              }
+            ]
+          },
+          "createdAt": "2026-02-04T18:14:04.064Z",
+          "updatedAt": "2026-02-04T18:14:04.064Z",
+          "__v": 0
+        },
+        "studentAnswer": {
+          "selectedOptionId": "C"
+        },
+        "isCorrect": false,
+        "earnedPoint": 0,
+        "_id": "698415f29aedfc1ecda510b3"
+      },
+      {
+        "questionId": {
+          "_id": "69838ccbd5038c6389b199ea",
+          "packId": "6983881e8dee6a3f1d4fb77e",
+          "type": "ARRANGE",
+          "point": 2,
+          "mediaUrl": "",
+          "mediaPublicId": "",
+          "mediaType": "NONE",
+          "explanation": "Cấu trúc câu thì hiện tại đơn: S + V + O (I + eat + an apple).",
+          "content": {
+            "question": "Sắp xếp các từ sau thành câu hoàn chỉnh:",
+            "segments": [
+              {
+                "id": 1,
+                "text": "apple"
+              },
+              {
+                "id": 2,
+                "text": "I"
+              },
+              {
+                "id": 3,
+                "text": "eat"
+              },
+              {
+                "id": 4,
+                "text": "an"
+              }
+            ],
+            "correctOrder": [
+              2,
+              3,
+              4,
+              1
+            ],
+            "correctText": "I eat an apple"
+          },
+          "createdAt": "2026-02-04T18:15:39.466Z",
+          "updatedAt": "2026-02-04T18:15:39.466Z",
+          "__v": 0
+        },
+        "studentAnswer": {
+          "orderedIds": [
+            2,
+            3,
+            4,
+            1
+          ]
+        },
+        "isCorrect": true,
+        "earnedPoint": 2,
+        "_id": "698415f29aedfc1ecda510b4"
+      },
+      {
+        "questionId": {
+          "_id": "69838ce4d5038c6389b199ef",
+          "packId": "6983881e8dee6a3f1d4fb77e",
+          "type": "TRUE_FALSE",
+          "point": 1,
+          "mediaUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/1200px-FullMoon2010.jpg",
+          "mediaPublicId": "education_app/moon_sample",
+          "mediaType": "IMAGE",
+          "explanation": "Sai. Mặt Trăng là vệ tinh tự nhiên của Trái Đất, nó quay quanh Trái Đất.",
+          "content": {
+            "question": "Mặt Trăng là một hành tinh trong Hệ Mặt Trời. Đúng hay Sai?",
+            "options": [
+              {
+                "id": "true",
+                "text": "Đúng",
+                "isCorrect": false
+              },
+              {
+                "id": "false",
+                "text": "Sai",
+                "isCorrect": true
+              }
+            ]
+          },
+          "createdAt": "2026-02-04T18:16:04.031Z",
+          "updatedAt": "2026-02-04T18:16:04.031Z",
+          "__v": 0
+        },
+        "studentAnswer": {
+          "selectedOptionId": "false"
+        },
+        "isCorrect": true,
+        "earnedPoint": 1,
+        "_id": "698415f29aedfc1ecda510b5"
+      },
+      {
+        "questionId": {
+          "_id": "69838cf4d5038c6389b199f4",
+          "packId": "6983881e8dee6a3f1d4fb77e",
+          "type": "TYPING",
+          "point": 3,
+          "mediaUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+          "mediaPublicId": "",
+          "mediaType": "AUDIO",
+          "explanation": "Câu nói thông dụng để chào hỏi vào buổi sáng.",
+          "content": {
+            "question": "Nghe đoạn hội thoại và điền từ còn thiếu: 'Good _____, teacher!'",
+            "acceptableAnswers": [
+              "morning",
+              "Morning",
+              "MORNING"
+            ]
+          },
+          "createdAt": "2026-02-04T18:16:20.969Z",
+          "updatedAt": "2026-02-04T18:16:20.969Z",
+          "__v": 0
+        },
+        "studentAnswer": {
+          "text": "Morning"
+        },
+        "isCorrect": true,
+        "earnedPoint": 3,
+        "_id": "698415f29aedfc1ecda510b6"
+      },
+      {
+        "questionId": {
+          "_id": "6983f1ac7bdb66b2d3e84966",
+          "packId": "6983881e8dee6a3f1d4fb77e",
+          "type": "MULTIPLE_CHOICE",
+          "point": 1,
+          "mediaUrl": "https://res.cloudinary.com/.../con_cho.jpg",
+          "mediaPublicId": "education/con_cho",
+          "mediaType": "IMAGE",
+          "explanation": "Con chó trong tiếng Anh là Dog",
+          "content": {
+            "question": "Đây là con gì?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Cat",
+                "isCorrect": false
+              },
+              {
+                "id": "B",
+                "text": "Dog",
+                "isCorrect": true
+              },
+              {
+                "id": "C",
+                "text": "Bird",
+                "isCorrect": false
+              },
+              {
+                "id": "D",
+                "text": "Fish",
+                "isCorrect": false
+              }
+            ]
+          },
+          "createdAt": "2026-02-05T01:26:04.650Z",
+          "updatedAt": "2026-02-05T01:26:04.650Z",
+          "__v": 0
+        },
+        "studentAnswer": {
+          "selectedOptionId": "B"
+        },
+        "isCorrect": true,
+        "earnedPoint": 1,
+        "_id": "698415f29aedfc1ecda510b7"
+      },
+      {
+        "questionId": {
+          "_id": "6983f39e7bdb66b2d3e8496c",
+          "packId": "6983881e8dee6a3f1d4fb77e",
+          "type": "MULTIPLE_CHOICE",
+          "point": 1,
+          "mediaUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2SNmLyybZ0l0fROxXfKD6eY-3uuDqyazyPzzcJkLNM_rvq3P8uqb1y9yL7mrthCtRRoFj&s=10",
+          "mediaPublicId": "education/con_cho",
+          "mediaType": "IMAGE",
+          "explanation": "Con chó trong tiếng Anh là Dog",
+          "content": {
+            "question": "Đây là con gì?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Cat",
+                "isCorrect": false
+              },
+              {
+                "id": "B",
+                "text": "Dog",
+                "isCorrect": true
+              },
+              {
+                "id": "C",
+                "text": "Bird",
+                "isCorrect": false
+              },
+              {
+                "id": "D",
+                "text": "Fish",
+                "isCorrect": false
+              }
+            ]
+          },
+          "createdAt": "2026-02-05T01:34:22.753Z",
+          "updatedAt": "2026-02-05T01:34:22.753Z",
+          "__v": 0
+        },
+        "studentAnswer": {
+          "selectedOptionId": "B"
+        },
+        "isCorrect": true,
+        "earnedPoint": 1,
+        "_id": "698415f29aedfc1ecda510b8"
+      },
+      {
+        "questionId": {
+          "_id": "6983f4e8602f4629bf2e5d0f",
+          "packId": "6983881e8dee6a3f1d4fb77e",
+          "type": "MULTIPLE_CHOICE",
+          "point": 1,
+          "mediaUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqJpYxKpF0fKJ8s5nQ6RZq0o0o8h2K8f7z8A&s",
+          "mediaPublicId": "education/con_meo",
+          "mediaType": "IMAGE",
+          "explanation": "Con mèo trong tiếng Anh là Cat",
+          "content": {
+            "question": "Đây là con gì?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Dog",
+                "isCorrect": false
+              },
+              {
+                "id": "B",
+                "text": "Bird",
+                "isCorrect": false
+              },
+              {
+                "id": "C",
+                "text": "Cat",
+                "isCorrect": true
+              },
+              {
+                "id": "D",
+                "text": "Fish",
+                "isCorrect": false
+              }
+            ]
+          },
+          "createdAt": "2026-02-05T01:39:52.345Z",
+          "updatedAt": "2026-02-05T01:39:52.345Z",
+          "__v": 0
+        },
+        "studentAnswer": {
+          "selectedOptionId": "C"
+        },
+        "isCorrect": true,
+        "earnedPoint": 1,
+        "_id": "698415f29aedfc1ecda510b9"
+      }
+    ],
+    "status": "SUBMITTED",
+    "createdAt": "2026-02-05T03:43:59.171Z",
+    "updatedAt": "2026-02-05T04:00:50.226Z"
+  }
+}

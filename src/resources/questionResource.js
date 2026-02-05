@@ -11,10 +11,11 @@ const questionResource = (question) => {
     packId: question.packId,
     type: question.type,
     point: question.point,
-
-    // Nội dung câu hỏi (giữ nguyên structure JSON linh động)
+    mediaUrl: question.mediaUrl,
+    mediaPublicId: question.mediaPublicId,
+    mediaType: question.mediaType,
+    explanation: question.explanation,
     content: question.content,
-
     createdAt: question.createdAt,
     updatedAt: question.updatedAt,
   };

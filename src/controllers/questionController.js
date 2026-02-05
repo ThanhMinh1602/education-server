@@ -15,6 +15,10 @@ const {
 const { removeFileCloudinary } = require('../utils/cloudinaryHelper');
 const { USER_ROLES } = require('../constants/enums');
 const { MEDIA_TYPE_VALUES } = require('../constants/enums');
+const {
+  validateQuestion,
+  validateQuestionUpdate,
+} = require('../validations/questionValidation');
 
 // =========================================================
 // PHẦN 1: QUẢN LÝ LEVEL (CẤP ĐỘ)
@@ -241,6 +245,8 @@ exports.deletePack = async (req, res) => {
 // @desc    Thêm câu hỏi vào gói
 exports.createQuestion = async (req, res) => {
   try {
+    const { error } = validateQuestion(req.body);
+    if (error) return errorResponse(res, error, 400);
     const {
       packId,
       type,
@@ -310,6 +316,8 @@ exports.getQuestionsByPack = async (req, res) => {
 // @desc    Cập nhật câu hỏi (Xử lý thay đổi ảnh)
 exports.updateQuestion = async (req, res) => {
   try {
+    const { error } = validateQuestionUpdate(req.body, null);
+    if (error) return errorResponse(res, error, 400);
     const {
       type,
       content,

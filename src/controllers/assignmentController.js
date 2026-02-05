@@ -60,7 +60,10 @@ exports.getAssignments = async (req, res) => {
     let query = {};
 
     // 1. Nếu là Giáo viên: Xem các bài mình đã giao
-    if (req.user.role === USER_ROLES.TEACHER) {
+    if (
+      req.user.role === USER_ROLES.TEACHER ||
+      req.user.role === USER_ROLES.ADMIN
+    ) {
       query = { teacherId: req.user.id };
 
       const [assignments, total] = await Promise.all([
@@ -72,7 +75,13 @@ exports.getAssignments = async (req, res) => {
           .limit(limit),
         Assignment.countDocuments(query),
       ]);
-      return listResponse(res, assignments, total, page, limit);
+      return listResponse(
+        res,
+        collection(assignments, AssignmentResource),
+        total,
+        page,
+        limit,
+      );
     }
 
     // 2. Nếu là Học viên: Xem bài tập của các lớp mình đang học
@@ -112,14 +121,18 @@ exports.getAssignments = async (req, res) => {
         }),
       );
 
-      return listResponse(res, data, total, page, limit);
+      return listResponse(
+        res,
+        collection(data, AssignmentResource),
+        total,
+        page,
+        limit,
+      );
     }
   } catch (error) {
     return errorResponse(res, error);
   }
 };
-// ... (Các code cũ giữ nguyên)
-
 // =========================================================
 // PHẦN BỔ SUNG: GET DETAIL, UPDATE, DELETE
 // =========================================================

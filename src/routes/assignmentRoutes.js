@@ -10,6 +10,7 @@ const {
 const {
   submitAssignment,
   getSubmissionHistory,
+  getAssignmentSubmissions,
 } = require('../controllers/submissionController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
@@ -151,11 +152,16 @@ router
 
 // ======================= SUBMIT ASSIGNMENT =======================
 
+// ======================= SUBMIT ASSIGNMENT =======================
+
 /**
  * @swagger
  * /assignments/{id}/submit:
  *   post:
  *     summary: Học viên nộp bài tập
+ *     description: |
+ *       API nhận danh sách câu trả lời.
+ *       Cấu trúc của field `answer` sẽ thay đổi tùy theo loại câu hỏi.
  *     tags: [Assignments]
  *     security:
  *       - bearerAuth: []
@@ -165,26 +171,73 @@ router
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID của bài tập (Assignment ID)
+ *
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - answers
  *             properties:
  *               answers:
  *                 type: array
+ *                 description: Danh sách câu trả lời
  *                 items:
  *                   type: object
+ *                   required:
+ *                     - questionId
+ *                     - answer
  *                   properties:
  *                     questionId:
  *                       type: string
+ *                       description: ID của câu hỏi
  *                     answer:
  *                       type: object
- *                       description: String | Boolean | Array (tùy loại câu hỏi)
+ *                       description: Dữ liệu trả lời (Xem Examples bên dưới)
+ *           examples:
+ *             Full_Submission_Demo:
+ *               summary: Ví dụ nộp bài tổng hợp (Đủ các loại câu hỏi)
+ *               value:
+ *                 answers:
+ *                   - questionId: "65d4... (ID câu Trắc nghiệm)"
+ *                     answer:
+ *                       selectedOptionId: "B"
+ *                   - questionId: "65d4... (ID câu Đúng/Sai)"
+ *                     answer:
+ *                       selectedOptionId: "false"
+ *                   - questionId: "65d4... (ID câu Sắp xếp)"
+ *                     answer:
+ *                       orderedIds: [2, 3, 1, 4]
+ *                   - questionId: "65d4... (ID câu Điền từ)"
+ *                     answer:
+ *                       text: "Good morning"
+ *
  *     responses:
  *       200:
- *         description: Nộp bài thành công
+ *         description: Nộp bài thành công – Trả về kết quả chấm điểm
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     score:
+ *                       type: number
+ *                       example: 8.5
+ *                     totalCorrect:
+ *                       type: number
+ *                       example: 3
+ *                     totalQuestions:
+ *                       type: number
+ *                       example: 4
  */
 router.post('/:id/submit', authorize('student'), submitAssignment);
 
@@ -209,5 +262,65 @@ router.post('/:id/submit', authorize('student'), submitAssignment);
  *         description: OK
  */
 router.get('/:id/history', authorize('student'), getSubmissionHistory);
+
+// ======================= TEACHER GRADING =======================
+
+/**
+ * @swagger
+ * /assignments/{id}/submissions:
+ *   get:
+ *     summary: Xem danh sách nộp bài của cả lớp (Dành cho GV/Admin)
+ *     description: |
+ *       Trả về danh sách tất cả học sinh trong lớp
+ *       kèm trạng thái nộp bài và điểm số (nếu đã chấm).
+ *     tags: [Assignments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của bài tập
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách nộp bài thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       studentId:
+ *                         type: string
+ *                         example: "65d4..."
+ *                       studentName:
+ *                         type: string
+ *                         example: "Nguyễn Văn A"
+ *                       submitted:
+ *                         type: boolean
+ *                         example: true
+ *                       score:
+ *                         type: number
+ *                         nullable: true
+ *                         example: 8.5
+ *                       submittedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         nullable: true
+ */
+router.get(
+  '/:id/submissions',
+  authorize('teacher', 'admin'),
+  getAssignmentSubmissions,
+);
 
 module.exports = router;

@@ -1,10 +1,3 @@
-// src/constants/enums.js
-
-/**
- * Constants cho tất cả enums trong ứng dụng
- * Đảm bảo tính nhất quán và dễ bảo trì
- */
-
 const USER_ROLES = {
   STUDENT: 'student',
   TEACHER: 'teacher',
@@ -22,6 +15,7 @@ const SUBMISSION_STATUSES = {
   SUBMITTED: 'SUBMITTED',
   LATE: 'LATE',
   GRADED: 'GRADED',
+  NOT_SUBMITTED: 'NOT_SUBMITTED',
 };
 
 const ASSIGNMENT_STATUSES = {
