@@ -24,14 +24,22 @@ module.exports = (cls) => {
 
     // --- SỐ LƯỢNG HỌC VIÊN ---
     studentCount: Array.isArray(cls.studentIds) ? cls.studentIds.length : 0,
-
+    schedule: Array.isArray(cls.schedule)
+      ? cls.schedule.map((item) => ({
+        id: item._id, // Map _id của Mongo sang id
+        dayOfWeek: item.dayOfWeek,
+        startTime: item.startTime,
+        endTime: item.endTime,
+        room: item.room,
+      }))
+      : [],
     // --- DANH SÁCH HỌC VIÊN ---
     // Chỉ trả về mảng user đầy đủ nếu controller có .populate('studentIds')
     // Nếu không, trả về mảng rỗng [] để tiết kiệm băng thông cho API list
     students:
       Array.isArray(cls.studentIds) &&
-      cls.studentIds.length > 0 &&
-      cls.studentIds[0].name
+        cls.studentIds.length > 0 &&
+        cls.studentIds[0].name
         ? cls.studentIds.map((student) => userResource(student))
         : [],
 

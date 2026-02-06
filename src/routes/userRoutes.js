@@ -78,6 +78,11 @@ router.put('/profile/change-password', changePassword);
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *         description: Tìm theo tên hoặc role
+ *       - in: query
  *         name: keyword
  *         schema:
  *           type: string
@@ -189,6 +194,8 @@ router.get('/:id/progress', authorize('teacher', 'admin'), getStudentProgress);
  *               isActive:
  *                 type: boolean
  *               password:
+ *                 type: string
+ *               role:
  *                 type: string
  *     responses:
  *       200:

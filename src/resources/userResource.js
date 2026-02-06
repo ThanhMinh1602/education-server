@@ -22,11 +22,11 @@ const userResource = (user) => {
     ...(user.subject && { subject: user.subject }),
     isActive: user.isActive,
     // Flatten classes: Nếu đã populate thì map lấy tên, chưa thì trả ID
-    classes: Array.isArray(user.classes)
-      ? user.classes.map((c) =>
-          c.name ? { id: c._id, name: c.name, code: c.code } : c,
-        )
-      : [],
+    // classes: Array.isArray(user.classes)
+    //   ? user.classes.map((c) =>
+    //       c.name ? { id: c._id, name: c.name, code: c.code } : c,
+    //     )
+    //   : [],
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };

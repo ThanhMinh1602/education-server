@@ -51,6 +51,25 @@ router.use(protect);
  *               description:
  *                 type: string
  *                 description: Mô tả ngắn về lớp
+ *               schedule:
+ *                 type: array
+ *                 description: Lịch học (VD Thứ 2, 19:00 - 21:00)
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     dayOfWeek:
+ *                       type: integer
+ *                       description: 0=CN, 1=T2, ..., 6=T7
+ *                       example: 1
+ *                     startTime:
+ *                       type: string
+ *                       example: "19:00"
+ *                     endTime:
+ *                       type: string
+ *                       example: "21:00"
+ *                     room:
+ *                       type: string
+ *                       example: "Online"
  *     responses:
  *       201:
  *         description: Tạo thành công, trả về kèm mã Code
@@ -131,7 +150,7 @@ router.post('/join', authorize('student'), joinClass);
  *         description: OK
  *
  *   put:
- *     summary: Cập nhật thông tin lớp (Tên, Ảnh, Khóa lớp)
+ *     summary: Cập nhật thông tin lớp (Tên, Lịch học, Ảnh, Khóa lớp)
  *     tags: [Classes]
  *     security:
  *       - bearerAuth: []
@@ -157,6 +176,24 @@ router.post('/join', authorize('student'), joinClass);
  *               isActive:
  *                 type: boolean
  *                 description: true = Mở lớp, false = Khóa lớp
+ *               schedule:
+ *                 type: array
+ *                 description: Cập nhật toàn bộ lịch học
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     dayOfWeek:
+ *                       type: integer
+ *                       example: 1
+ *                     startTime:
+ *                       type: string
+ *                       example: "19:00"
+ *                     endTime:
+ *                       type: string
+ *                       example: "21:00"
+ *                     room:
+ *                       type: string
+ *                       example: "Phòng 101"
  *     responses:
  *       200:
  *         description: Cập nhật thành công

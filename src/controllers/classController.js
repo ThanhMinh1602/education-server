@@ -28,7 +28,7 @@ const generateClassCode = async () => {
 // @route   POST /api/classes
 exports.createClass = async (req, res) => {
   try {
-    const { name, description, thumbnail } = req.body;
+    const { name, description, thumbnail, schedule } = req.body;
 
     // 1️⃣ Kiểm tra trùng tên lớp (theo giáo viên)
     const existedClass = await Class.findOne({
@@ -49,6 +49,7 @@ exports.createClass = async (req, res) => {
       thumbnail,
       code,
       teacherId: req.user.id,
+      schedule
     });
 
     return successResponse(
@@ -66,7 +67,7 @@ exports.createClass = async (req, res) => {
 // @route   PUT /api/classes/:id
 exports.updateClass = async (req, res) => {
   try {
-    const { name, description, thumbnail, isActive } = req.body;
+    const { name, description, thumbnail, isActive, schedule } = req.body;
     const classId = req.params.id;
 
     // 1. Tìm lớp học
@@ -104,6 +105,8 @@ exports.updateClass = async (req, res) => {
 
     if (description !== undefined) classData.description = description;
     if (thumbnail !== undefined) classData.thumbnail = thumbnail;
+    if (schedule !== undefined) classData.schedule = schedule;
+
 
     // Xử lý trạng thái khóa/mở lớp
     if (isActive !== undefined) {

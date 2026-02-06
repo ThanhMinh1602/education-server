@@ -55,7 +55,20 @@ const classSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-
+    schedule: [
+      {
+        // Quy ước: 0 = Chủ Nhật, 1 = Thứ 2, ..., 6 = Thứ 7 (Theo chuẩn JS Date)
+        dayOfWeek: {
+          type: Number,
+          required: true,
+          min: 0,
+          max: 6
+        },
+        startTime: { type: String, required: true }, // VD: "19:30"
+        endTime: { type: String, required: true },   // VD: "21:30"
+        room: { type: String, default: 'Online' }    // VD: "Phòng Zoom 1", "Google Meet"
+      }
+    ],
     // Danh sách ID học viên trong lớp (Liên kết bảng User)
     studentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 

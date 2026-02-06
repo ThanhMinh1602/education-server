@@ -22,10 +22,10 @@ exports.getStudents = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { keyword } = req.query;
+    const { keyword, role } = req.query;
 
     const query = {
-      role: USER_ROLES.STUDENT,
+      role: role ?? USER_ROLES.STUDENT,
     };
 
     if (keyword) {
@@ -133,7 +133,7 @@ exports.updateUser = async (req, res) => {
     if (!isValidId(req.params.id))
       return errorResponse(res, 'ID không hợp lệ', 400);
 
-    const { name, isActive, password } = req.body;
+    const { name, isActive, password, role } = req.body;
     const user = await User.findById(req.params.id);
 
     if (!user) {
@@ -151,6 +151,7 @@ exports.updateUser = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
     }
+    if (role) user.role = role;
 
     const updatedUser = await user.save();
 
