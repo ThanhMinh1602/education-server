@@ -181,7 +181,11 @@ exports.getAssignmentById = async (req, res) => {
       return errorResponse(res, 'Bạn không có quyền xem bài tập này', 403);
     }
 
-    return successResponse(res, assignment, 'Lấy chi tiết bài tập thành công');
+    return successResponse(
+      res,
+      AssignmentResource(assignment),
+      'Lấy chi tiết bài tập thành công',
+    );
   } catch (error) {
     return errorResponse(res, error);
   }

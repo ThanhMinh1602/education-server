@@ -1,23 +1,29 @@
 const express = require('express');
 const router = express.Router();
+
 const {
   createClass,
   getClasses,
   getClassById,
+  updateClass,
   joinClass,
   deleteClass,
   removeStudent,
 } = require('../controllers/classController');
+
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
 // Tất cả thao tác với lớp đều cần đăng nhập
 router.use(protect);
+
 /**
  * @swagger
  * tags:
- *   name: Classes
- *   description: Quản lý lớp học và thành viên
+ *   - name: Classes
+ *     description: Quản lý lớp học và thành viên
  */
+
+// ======================= ROOT ROUTES =======================
 
 /**
  * @swagger
@@ -38,11 +44,13 @@ router.use(protect);
  *             properties:
  *               name:
  *                 type: string
- *                 description: Mô tả lớp học
+ *                 description: Tên lớp học
  *               thumbnail:
  *                 type: string
+ *                 description: Link ảnh bìa (Cloudinary)
  *               description:
  *                 type: string
+ *                 description: Mô tả ngắn về lớp
  *     responses:
  *       201:
  *         description: Tạo thành công, trả về kèm mã Code
@@ -57,10 +65,12 @@ router.use(protect);
  *         name: page
  *         schema:
  *           type: integer
+ *         description: Trang số (Mặc định 1)
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *         description: Số lượng mỗi trang (Mặc định 10)
  *     responses:
  *       200:
  *         description: Thành công
@@ -69,6 +79,8 @@ router
   .route('/')
   .post(authorize('teacher', 'admin'), createClass)
   .get(getClasses);
+
+// ======================= JOIN CLASS =======================
 
 /**
  * @swagger
@@ -98,6 +110,8 @@ router
  */
 router.post('/join', authorize('student'), joinClass);
 
+// ======================= DETAIL ROUTES =======================
+
 /**
  * @swagger
  * /classes/{id}:
@@ -115,6 +129,37 @@ router.post('/join', authorize('student'), joinClass);
  *     responses:
  *       200:
  *         description: OK
+ *
+ *   put:
+ *     summary: Cập nhật thông tin lớp (Tên, Ảnh, Khóa lớp)
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Tên lớp
+ *               description:
+ *                 type: string
+ *               thumbnail:
+ *                 type: string
+ *               isActive:
+ *                 type: boolean
+ *                 description: true = Mở lớp, false = Khóa lớp
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công
  *
  *   delete:
  *     summary: Xóa lớp học (Chỉ Teacher sở hữu)
@@ -134,7 +179,10 @@ router.post('/join', authorize('student'), joinClass);
 router
   .route('/:id')
   .get(getClassById)
+  .put(authorize('teacher', 'admin'), updateClass)
   .delete(authorize('teacher', 'admin'), deleteClass);
+
+// ======================= MEMBER MANAGEMENT =======================
 
 /**
  * @swagger

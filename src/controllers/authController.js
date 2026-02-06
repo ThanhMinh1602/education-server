@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { successResponse, errorResponse } = require('../utils/response');
 const { USER_ROLES } = require('../constants/enums');
+const UserResource = require('./../resources/userResource');
 
 // --- HELPER FUNCTIONS ---
 const generateAccessToken = (id) => {
@@ -45,7 +46,7 @@ exports.register = async (req, res) => {
     return successResponse(
       res,
       {
-        user,
+        user: UserResource(user),
         accessToken,
         refreshToken,
       },
@@ -74,7 +75,7 @@ exports.login = async (req, res) => {
 
       return successResponse(
         res,
-        { user, accessToken, refreshToken },
+        { user: UserResource(user), accessToken, refreshToken },
         'Đăng nhập thành công',
       );
     } else {

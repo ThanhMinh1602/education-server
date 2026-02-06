@@ -62,6 +62,67 @@ exports.createClass = async (req, res) => {
   }
 };
 
+// @desc    Cập nhật thông tin lớp học (Tên, ảnh, trạng thái...)
+// @route   PUT /api/classes/:id
+exports.updateClass = async (req, res) => {
+  try {
+    const { name, description, thumbnail, isActive } = req.body;
+    const classId = req.params.id;
+
+    // 1. Tìm lớp học
+    const classData = await Class.findById(classId);
+
+    if (!classData) {
+      return errorResponse(res, 'Không tìm thấy lớp học', 404);
+    }
+
+    // 2. Check quyền: Chỉ Giáo viên sở hữu (hoặc Admin) mới được sửa
+    if (
+      req.user.role !== USER_ROLES.ADMIN &&
+      classData.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền chỉnh sửa lớp này', 403);
+    }
+
+    // 3. Logic update từng trường
+    // Nếu có gửi name mới và khác name cũ -> Check trùng
+    if (name && name.trim() !== classData.name) {
+      const duplicateClass = await Class.findOne({
+        name: name.trim(),
+        teacherId: req.user.id, // Check trùng trong phạm vi các lớp của GV này
+      });
+
+      if (duplicateClass) {
+        return errorResponse(
+          res,
+          'Tên lớp đã tồn tại, vui lòng chọn tên khác',
+          400,
+        );
+      }
+      classData.name = name.trim();
+    }
+
+    if (description !== undefined) classData.description = description;
+    if (thumbnail !== undefined) classData.thumbnail = thumbnail;
+
+    // Xử lý trạng thái khóa/mở lớp
+    if (isActive !== undefined) {
+      classData.isActive = isActive;
+    }
+
+    // 4. Lưu vào DB
+    const updatedClass = await classData.save();
+
+    return successResponse(
+      res,
+      ClassResource(updatedClass),
+      'Cập nhật lớp học thành công',
+    );
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
 // @desc    Lấy danh sách lớp học (Tùy theo Role)
 // @route   GET /api/classes
 exports.getClasses = async (req, res) => {
