@@ -11,7 +11,7 @@ const userResource = (user) => {
     username: user.username,
     role: user.role,
     // Nếu không có avatar thì trả về ảnh mặc định hoặc null
-    avatar: user.avatar || 'https://via.placeholder.com/150',
+    avatar: user.avatar,
 
     // Nếu có trường avgScore (học viên) thì trả về, không thì thôi
     ...(user.avgScore !== undefined && {
