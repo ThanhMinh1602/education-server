@@ -11,7 +11,6 @@ const levelResource = (level) => {
     description: level.description,
     order: level.order,
     isActive: level.isActive,
-
     createdAt: level.createdAt,
     updatedAt: level.updatedAt,
   };

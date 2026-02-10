@@ -39,7 +39,6 @@ exports.createLevel = async (req, res) => {
     return errorResponse(res, error);
   }
 };
-
 // @desc    Lấy danh sách cấp độ (Sắp xếp theo order)
 exports.getLevels = async (req, res) => {
   try {
@@ -48,6 +47,25 @@ exports.getLevels = async (req, res) => {
       res,
       collection(levels, LevelResource),
       'Lấy danh sách cấp độ thành công',
+    );
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
+// @desc    Lấy chi tiết 1 cấp độ theo ID
+exports.getLevelById = async (req, res) => {
+  try {
+    const level = await Level.findById(req.params.id);
+
+    if (!level) {
+      return errorResponse(res, 'Cấp độ không tồn tại', 404);
+    }
+
+    return successResponse(
+      res,
+      LevelResource(level),
+      'Lấy thông tin cấp độ thành công',
     );
   } catch (error) {
     return errorResponse(res, error);

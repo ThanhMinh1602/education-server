@@ -4,6 +4,7 @@ const {
   // Level
   createLevel,
   getLevels,
+  getLevelById,
   updateLevel,
   deleteLevel,
   // Pack
@@ -122,7 +123,8 @@ router
 router
   .route('/levels/:id')
   .put(authorize('teacher', 'admin'), updateLevel)
-  .delete(authorize('teacher', 'admin'), deleteLevel);
+  .delete(authorize('teacher', 'admin'), deleteLevel)
+  .get(authorize('teacher', 'admin'), getLevelById);
 
 /* ======================= PACK ======================= */
 
