@@ -18,9 +18,8 @@ const questionPackResource = (pack) => {
     levelName: pack.levelId?.name || '',
 
     // Thông tin giáo viên tạo (format bằng userResource)
-    teacher: pack.teacherId?.name
-      ? userResource(pack.teacherId)
-      : pack.teacherId,
+    teacherId: pack.teacherId._id,
+    teacherName: pack.teacherId.name,
 
     totalQuestions: pack.totalQuestions,
     isPublic: pack.isPublic,

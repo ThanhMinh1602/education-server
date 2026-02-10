@@ -183,6 +183,20 @@ exports.getPacks = async (req, res) => {
     return errorResponse(res, error);
   }
 };
+
+exports.getPackById = async (req, res) => {
+  try {
+    const pack = await QuestionPack.findById(req.params.id)
+      .populate('levelId', 'name')
+      .populate('teacherId', 'name');
+    return successResponse(
+      res,
+      QuestionPackResource(pack),)
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+
+}
 // @desc    Cập nhật Gói câu hỏi
 exports.updatePack = async (req, res) => {
   try {

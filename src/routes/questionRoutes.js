@@ -12,6 +12,7 @@ const {
   getPacks,
   updatePack,
   deletePack,
+  getPackById,
   // Question
   createQuestion,
   getQuestionsByPack,
@@ -234,7 +235,7 @@ router
  *         description: Xóa thành công toàn bộ dữ liệu gói
  */
 router
-  .route('/packs/:id')
+  .route('/packs/:id').get(authorize('teacher', 'admin'), getPackById)
   .put(authorize('teacher', 'admin'), updatePack)
   .delete(authorize('teacher', 'admin'), deletePack);
 
