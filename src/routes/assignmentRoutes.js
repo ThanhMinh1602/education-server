@@ -261,7 +261,7 @@ router.post('/:id/submit', authorize('student'), submitAssignment);
  *       200:
  *         description: OK
  */
-router.get('/:id/history', authorize('student'), getSubmissionHistory);
+router.get('/:id/history', authorize('student', 'teacher', 'admin'), getSubmissionHistory);
 
 // ======================= TEACHER GRADING =======================
 
