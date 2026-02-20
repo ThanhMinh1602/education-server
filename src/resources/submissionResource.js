@@ -1,7 +1,7 @@
 const userResource = require('./userResource');
 const assignmentResource = require('./assignmentResource');
 const questionResource = require('./questionResource');
-const { collection } = require('./index');
+// const { collection } = require('./index'); // Thường không cần dùng collection ở resource
 
 const submissionResource = (submission) => {
   if (!submission) return null;
@@ -21,6 +21,11 @@ const submissionResource = (submission) => {
       : submission.studentId,
 
     score: submission.score,
+    
+    // THÊM 2 DÒNG NÀY ĐỂ TRẢ VỀ SỐ CÂU ĐÚNG / TỔNG SỐ CÂU
+    totalCorrect: submission.totalCorrect || 0,
+    totalQuestions: submission.totalQuestions || 0,
+
     submittedAt: submission.submittedAt,
     details: Array.isArray(submission.details)
       ? submission.details.map((detail) => {
@@ -38,6 +43,7 @@ const submissionResource = (submission) => {
           };
         })
       : [],
+      
     status: submission.status,
     createdAt: submission.createdAt,
     updatedAt: submission.updatedAt,

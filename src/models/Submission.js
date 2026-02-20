@@ -55,7 +55,6 @@ const {
  *           type: string
  *           format: date-time
  */
-
 const submissionSchema = new mongoose.Schema(
   {
     // Nộp cho bài tập nào?
@@ -72,8 +71,14 @@ const submissionSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Tổng điểm đạt được
+    // Tổng điểm đạt được (Thường quy về thang 10 hoặc 100)
     score: { type: Number, default: 0 },
+
+    // THÊM MỚI: Số câu đúng
+    totalCorrect: { type: Number, default: 0 },
+
+    // THÊM MỚI: Tổng số câu hỏi
+    totalQuestions: { type: Number, default: 0 },
 
     // Thời gian nộp
     submittedAt: { type: Date, default: Date.now },

@@ -207,6 +207,7 @@ exports.getAssignmentSubmissions = async (req, res) => {
     const assignment = await Assignment.findById(id);
     if (!assignment) return errorResponse(res, 'Bài tập không tồn tại', 404);
     console.log(req.user);
+
     // 2. Check quyền: Admin hoặc GV dạy lớp đó
     if (
       req.user.role !== USER_ROLES.ADMIN &&
@@ -216,31 +217,40 @@ exports.getAssignmentSubmissions = async (req, res) => {
       return errorResponse(res, 'Bạn không có quyền xem danh sách này', 403);
     }
 
-    // 3. Lấy danh sách HỌC SINH trong lớp (Chỉ lấy id, name, avatar, email)
+    // 3. Lấy danh sách HỌC SINH trong lớp
     const classInfo = await Class.findById(assignment.classId).populate(
       'studentIds',
       'name avatar email code',
     );
     if (!classInfo) return errorResponse(res, 'Lớp học không tồn tại', 404);
 
-    // 4. Lấy danh sách BÀI NỘP (Chỉ lấy điểm, status, ngày nộp - KHÔNG lấy details cho nhẹ)
+    // 4. Lấy danh sách BÀI NỘP (Đã có select totalCorrect và totalQuestions)
     const submissions = await Submission.find({ assignmentId: id }).select(
       'studentId score status submittedAt totalCorrect totalQuestions',
     );
 
     // 5. GHÉP DỮ LIỆU (Mapping)
-    // Duyệt qua từng học sinh trong lớp để gắn thông tin bài nộp vào
     const results = classInfo.studentIds.map((student) => {
-      // Tìm bài nộp của học sinh này (nếu có)
       const sub = submissions.find(
         (s) => s.studentId.toString() === student._id.toString(),
       );
 
+      // Xử lý gắn thêm số câu đúng / tổng số câu
+      let submissionData = null;
+      if (sub) {
+        // Lấy dữ liệu từ Resource của bạn
+        submissionData = typeof SubmissionResource === 'function' 
+            ? SubmissionResource(sub) 
+            : { ...sub.toObject() }; // Fallback nếu không có Resource
+        
+        // Gắn ép thêm 2 trường này vào response
+        submissionData.totalCorrect = sub.totalCorrect || 0;
+        submissionData.totalQuestions = sub.totalQuestions || 0;
+      }
+
       return {
         student: UserResource(student),
-        // Nếu có bài nộp thì trả về info, không thì null
-        submission: sub ? SubmissionResource(sub) : null,
-        // Trạng thái tổng quát: Nếu chưa có submission thì là NOT_SUBMITTED
+        submission: submissionData,
         status: sub ? sub.status : SUBMISSION_STATUSES.NOT_SUBMITTED,
       };
     });
