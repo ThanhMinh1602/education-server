@@ -173,17 +173,16 @@ exports.getClasses = async (req, res) => {
 exports.getClassById = async (req, res) => {
   try {
     const classData = await Class.findById(req.params.id)
-      .populate('teacherId', 'name email avatar')
-      .populate('studentIds', 'name username avatar avgScore'); // Lấy list học viên
+      .populate('teacherId', 'name email avatar');
+      // Đã xóa dòng populate studentIds để API chạy nhanh như chớp
 
     if (!classData) {
       return errorResponse(res, 'Không tìm thấy lớp học', 404);
     }
-
-    // Bảo mật: Học viên không thuộc lớp này thì không được xem chi tiết (Tùy logic dự án)
     if (
       req.user.role === USER_ROLES.STUDENT &&
-      !classData.studentIds.some((s) => s._id.equals(req.user.id))
+      classData.studentIds && // Đảm bảo mảng tồn tại để không bị lỗi undefined
+      !classData.studentIds.some((studentId) => studentId.equals(req.user.id))
     ) {
       return errorResponse(res, 'Bạn không phải thành viên của lớp này', 403);
     }
@@ -197,7 +196,6 @@ exports.getClassById = async (req, res) => {
     return errorResponse(res, error);
   }
 };
-
 // @desc    Học viên tham gia lớp bằng Mã Code
 // @route   POST /api/classes/join
 exports.joinClass = async (req, res) => {
@@ -215,25 +213,21 @@ exports.joinClass = async (req, res) => {
       return errorResponse(res, 'Lớp học này đã bị khóa', 400);
     }
 
-    // 2. Kiểm tra đã tham gia chưa
-    if (classToJoin.studentIds.includes(req.user.id)) {
+    // 2. Kiểm tra user đã tham gia chưa
+    const user = await User.findById(req.user.id);
+
+    if (user.classes.includes(classToJoin._id)) {
       return errorResponse(res, 'Bạn đã tham gia lớp học này rồi', 400);
     }
 
-    // 3. Cập nhật 2 chiều (Transaction mềm)
-    // - Thêm User vào Class
-    classToJoin.studentIds.push(req.user.id);
-    await classToJoin.save();
-
-    // - Thêm Class vào User
-    await User.findByIdAndUpdate(req.user.id, {
-      $push: { classes: classToJoin._id },
-    });
-
+    // 3. Thêm class vào user
+   await User.findByIdAndUpdate(req.user.id, {
+  $addToSet: { classes: classToJoin._id },
+});
     return successResponse(
       res,
       ClassResource(classToJoin),
-      'Tham gia lớp học thành công',
+      'Tham gia lớp học thành công'
     );
   } catch (error) {
     return errorResponse(res, error);
@@ -270,29 +264,24 @@ exports.deleteClass = async (req, res) => {
   }
 };
 
-// @desc    Giáo viên mời học viên ra khỏi lớp
-// @route   PUT /api/classes/:id/remove-student
-exports.removeStudent = async (req, res) => {
+exports.removeStudentFromClass = async (req, res) => {
   try {
-    const { studentId } = req.body;
-    const classId = req.params.id;
+    const { classId, studentId } = req.params;
 
-    // Logic: Xóa ID học viên khỏi mảng studentIds của Class
-    const updatedClass = await Class.findByIdAndUpdate(
-      classId,
-      { $pull: { studentIds: studentId } },
-      { new: true },
+    // Sử dụng toán tử $pull để rút classId ra khỏi mảng classes của User
+    const updatedUser = await User.findByIdAndUpdate(
+      studentId,
+      { $pull: { classes: classId } }, // $pull: Lấy ra/Xóa đi
+      { new: true } // Trả về data mới sau khi đã cập nhật
     );
 
-    // Logic: Xóa ID lớp khỏi mảng classes của User
-    await User.findByIdAndUpdate(studentId, {
-      $pull: { classes: classId },
-    });
-
+    if (!updatedUser) {
+      return errorResponse(res, 'Không tìm thấy học viên này', 404);
+    }
     return successResponse(
       res,
-      ClassResource(updatedClass),
-      'Đã xóa học viên khỏi lớp',
+      null, // Không cần trả data về, chỉ cần status thành công
+      'Đã xóa học viên khỏi lớp học!'
     );
   } catch (error) {
     return errorResponse(res, error);

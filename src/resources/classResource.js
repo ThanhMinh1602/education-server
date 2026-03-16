@@ -33,18 +33,7 @@ module.exports = (cls) => {
         room: item.room,
       }))
       : [],
-    // --- DANH SÁCH HỌC VIÊN ---
-    // Chỉ trả về mảng user đầy đủ nếu controller có .populate('studentIds')
-    // Nếu không, trả về mảng rỗng [] để tiết kiệm băng thông cho API list
-    students:
-      Array.isArray(cls.studentIds) &&
-        cls.studentIds.length > 0 &&
-        cls.studentIds[0].name
-        ? cls.studentIds.map((student) => userResource(student))
-        : [],
-
     isActive: cls.isActive,
-
     // Format ngày tháng nếu cần (hoặc để nguyên ISO String)
     createdAt: cls.createdAt,
     updatedAt: cls.updatedAt,

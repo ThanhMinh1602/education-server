@@ -78,6 +78,11 @@ router.put('/profile/change-password', changePassword);
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
+ *         name: classId
+ *         schema:
+ *           type: string
+ *         description: Tìm theo classId
+ *       - in: query
  *         name: role
  *         schema:
  *           type: string

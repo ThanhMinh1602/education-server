@@ -17,16 +17,23 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 // @desc    Lấy danh sách tất cả học viên (Có tìm kiếm)
 // @route   GET /api/users
 // @access  Private (Teacher/Admin)
-exports.getStudents = async (req, res) => {
+ exports.getStudents = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { keyword, role } = req.query;
-
+    
+    // 1. Nhận thêm classId từ query params
+    const { keyword, role, classId } = req.query;
     const query = {
       role: role ?? USER_ROLES.STUDENT,
     };
+
+    // 2. Thêm điều kiện lọc theo lớp
+    if (classId) {
+      // Mongoose sẽ tự hiểu: "Tìm những user có mảng 'classes' chứa 'classId' này"
+      query.classes = classId; 
+    }
 
     if (keyword) {
       const regex = new RegExp(keyword, 'i'); // Tạo regex 1 lần cho tối ưu

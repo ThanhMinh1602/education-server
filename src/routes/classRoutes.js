@@ -8,7 +8,7 @@ const {
   updateClass,
   joinClass,
   deleteClass,
-  removeStudent,
+  removeStudentFromClass,
 } = require('../controllers/classController');
 
 const { protect, authorize } = require('../middlewares/authMiddleware');
@@ -223,33 +223,40 @@ router
 
 /**
  * @swagger
- * /classes/{id}/remove-student:
- *   put:
- *     summary: Mời học viên ra khỏi lớp (Kick)
- *     tags: [Classes]
+ * /classes/{classId}/students/{studentId}:
+ *   delete:
+ *     summary: Xóa/Mời học viên ra khỏi lớp
+ *     tags:
+ *       - Classes
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: classId
  *         required: true
+ *         description: ID của lớp học
  *         schema:
  *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - studentId
- *             properties:
- *               studentId:
- *                 type: string
+ *       - in: path
+ *         name: studentId
+ *         required: true
+ *         description: ID của học viên cần xóa
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: Đã xóa học viên
+ *         description: Đã xóa học viên thành công
+ *       403:
+ *         description: Không có quyền thực hiện (Chỉ Teacher/Admin)
+ *       404:
+ *         description: Không tìm thấy tài nguyên
  */
-router.put('/:id/remove-student', authorize('teacher', 'admin'), removeStudent);
+
+// Định nghĩa Route dùng DELETE và truyền thẳng 2 ID lên URL
+router.delete(
+  '/:classId/students/:studentId',
+  authorize('teacher', 'admin'),
+  removeStudentFromClass
+);
 
 module.exports = router;

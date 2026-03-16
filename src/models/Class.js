@@ -69,12 +69,20 @@ const classSchema = new mongoose.Schema(
         room: { type: String, default: 'Online' }    // VD: "Phòng Zoom 1", "Google Meet"
       }
     ],
-    // Danh sách ID học viên trong lớp (Liên kết bảng User)
-    studentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
 );
+// Kích hoạt virtuals khi convert ra JSON (Để API trả về có chứa trường ảo này)
+classSchema.set('toJSON', { virtuals: true });
+classSchema.set('toObject', { virtuals: true });
 
+// TẠO TRƯỜNG ẢO TỰ ĐỘNG ĐẾM SĨ SỐ (VIRTUAL COUNT)
+classSchema.virtual('studentCount', {
+  ref: 'User',            // Đếm từ bảng User
+  localField: '_id',      // Lấy _id của Class hiện tại...
+  foreignField: 'classes',// ...để đem đi so sánh với mảng 'classes' bên bảng User
+  count: true             // Bật chế độ đếm số lượng (chứ không lấy data chi tiết)
+});
 module.exports = mongoose.model('Class', classSchema);
