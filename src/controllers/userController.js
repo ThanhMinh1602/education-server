@@ -17,42 +17,48 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 // @desc    Lấy danh sách tất cả học viên (Có tìm kiếm)
 // @route   GET /api/users
 // @access  Private (Teacher/Admin)
- exports.getStudents = async (req, res) => {
+exports.getStudents = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     
-    // 1. Nhận thêm classId từ query params
     const { keyword, role, classId } = req.query;
-    const query = {
-      role: role ?? USER_ROLES.STUDENT,
-    };
+    
+    // Khởi tạo query trống
+    const query = {};
 
-    // 2. Thêm điều kiện lọc theo lớp
+    // 1. Filter theo Role (Nếu có truyền lên thì mới lọc, không thì lấy hết)
+    if (role) {
+      query.role = role;
+    }
+
+    // 2. Filter theo Lớp
     if (classId) {
-      // Mongoose sẽ tự hiểu: "Tìm những user có mảng 'classes' chứa 'classId' này"
       query.classes = classId; 
     }
 
+    // 3. Tìm kiếm theo từ khóa
     if (keyword) {
-      const regex = new RegExp(keyword, 'i'); // Tạo regex 1 lần cho tối ưu
+      const regex = new RegExp(keyword, 'i');
       query.$or = [{ name: regex }, { username: regex }];
     }
 
-    const [students, total] = await Promise.all([
+    // Thực thi query song song để tối ưu tốc độ
+    const [students, totalItems] = await Promise.all([
       User.find(query)
-        .select('-password -refreshToken') // Không select field nhạy cảm
+        .select('-password -refreshToken')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
       User.countDocuments(query),
     ]);
 
+    // Trả về theo cấu trúc pagination mà anh em mình vừa thống nhất ở Flutter
     return listResponse(
       res,
       collection(students, UserResource),
-      total,
+      totalItems, 
       page,
       limit,
     );
