@@ -5,8 +5,10 @@ const {
   getLevels,
   createPack,
   getPacks,
+  deletePack,
   createQuestion,
   getQuestionsByPack,
+  updateQuestion,
   deleteQuestion,
 } = require('../controllers/questionController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
@@ -107,6 +109,8 @@ router
   .get(getPacks)
   .post(authorize('teacher', 'admin'), createPack);
 
+router.delete('/packs/:id', authorize('teacher', 'admin'), deletePack);
+
 // ======================= QUESTION =======================
 
 /**
@@ -174,6 +178,20 @@ router.get('/packs/:packId/questions', getQuestionsByPack);
 /**
  * @swagger
  * /content/questions/{id}:
+ *   put:
+ *     summary: Cập nhật câu hỏi (không đổi loại)
+ *     tags: [Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công
  *   delete:
  *     summary: Xóa câu hỏi
  *     tags: [Content]
@@ -189,6 +207,7 @@ router.get('/packs/:packId/questions', getQuestionsByPack);
  *       200:
  *         description: Xóa thành công
  */
+router.put('/questions/:id', authorize('teacher', 'admin'), updateQuestion);
 router.delete('/questions/:id', authorize('teacher', 'admin'), deleteQuestion);
 
 module.exports = router;

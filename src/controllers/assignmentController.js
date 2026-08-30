@@ -103,6 +103,18 @@ exports.getAssignments = async (req, res) => {
 
       return listResponse(res, data, total, page, limit);
     }
+
+    // 3. Admin: Xem tất cả bài tập
+    const [assignments, total] = await Promise.all([
+      Assignment.find(query)
+        .populate('classId', 'name')
+        .populate('questionPackId', 'title thumbnail totalQuestions')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Assignment.countDocuments(query),
+    ]);
+    return listResponse(res, assignments, total, page, limit);
   } catch (error) {
     return errorResponse(res, error);
   }

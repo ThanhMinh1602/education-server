@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { errorResponse } = require('../utils/response');
 
 // 1. Middleware xác thực: Kiểm tra Token gửi lên
 exports.protect = async (req, res, next) => {
@@ -22,22 +23,22 @@ exports.protect = async (req, res, next) => {
       req.user = await User.findById(decoded.id).select('-password');
 
       if (!req.user) {
-        return res.status(401).json({ message: 'User không tồn tại' });
+        return errorResponse(res, 'User không tồn tại', 401);
       }
 
-      next(); // Cho phép đi tiếp
+      if (!req.user.isActive) {
+        return errorResponse(res, 'Tài khoản đã bị khóa', 403);
+      }
+
+      next();
     } catch (error) {
       console.error(error);
-      return res
-        .status(401)
-        .json({ message: 'Token không hợp lệ hoặc đã hết hạn' });
+      return errorResponse(res, 'Token không hợp lệ hoặc đã hết hạn', 401);
     }
   }
 
   if (!token) {
-    return res
-      .status(401)
-      .json({ message: 'Không có quyền truy cập, vui lòng đăng nhập' });
+    return errorResponse(res, 'Không có quyền truy cập, vui lòng đăng nhập', 401);
   }
 };
 
@@ -45,9 +46,11 @@ exports.protect = async (req, res, next) => {
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        message: `Role '${req.user.role}' không có quyền thực hiện hành động này`,
-      });
+      return errorResponse(
+        res,
+        `Role '${req.user.role}' không có quyền thực hiện hành động này`,
+        403,
+      );
     }
     next();
   };

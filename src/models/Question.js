@@ -79,6 +79,10 @@ const questionSchema = new mongoose.Schema(
     // Điểm số cho câu này (Mặc định 1 điểm)
     point: { type: Number, default: 1 },
 
+    explanation: { type: String, default: '' },
+    mediaUrl: { type: String, default: '' },
+    mediaType: { type: String, enum: ['IMAGE', 'NONE'], default: 'NONE' },
+
     // Nội dung câu hỏi (JSON linh động)
     content: { type: mongoose.Schema.Types.Mixed, required: true },
   },

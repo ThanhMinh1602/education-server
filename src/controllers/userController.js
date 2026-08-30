@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const Submission = require('../models/Submission');
 const bcrypt = require('bcryptjs');
 const {
   listResponse,

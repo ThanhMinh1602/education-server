@@ -6,6 +6,7 @@ const {
   refreshToken,
   logout,
 } = require('../controllers/authController');
+const { protect } = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -151,6 +152,6 @@ router.post('/refresh-token', refreshToken);
  *       200:
  *         description: Đăng xuất thành công
  */
-router.post('/logout', logout);
+router.post('/logout', protect, logout);
 
 module.exports = router;

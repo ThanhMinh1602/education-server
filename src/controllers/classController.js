@@ -93,17 +93,22 @@ exports.getClasses = async (req, res) => {
 exports.getClassById = async (req, res) => {
   try {
     const classData = await Class.findById(req.params.id)
-      .populate('teacherId', 'name email avatar')
-      .populate('studentIds', 'name username avatar avgScore'); // Lấy list học viên
+      .populate('teacherId', 'name username avatar')
+      .populate('studentIds', 'name username avatar avgScore');
 
     if (!classData) {
       return errorResponse(res, 'Không tìm thấy lớp học', 404);
     }
 
-    // Bảo mật: Học viên không thuộc lớp này thì không được xem chi tiết (Tùy logic dự án)
-    // if (req.user.role === 'student' && !classData.studentIds.some(s => s._id.equals(req.user.id))) {
-    //   return errorResponse(res, 'Bạn không phải thành viên của lớp này', 403);
-    // }
+    const isAdmin = req.user.role === 'admin';
+    const isTeacher = classData.teacherId._id.toString() === req.user.id;
+    const isStudent = classData.studentIds.some(
+      (s) => s._id.toString() === req.user.id,
+    );
+
+    if (!isAdmin && !isTeacher && !isStudent) {
+      return errorResponse(res, 'Bạn không có quyền xem lớp này', 403);
+    }
 
     return successResponse(res, classData, 'Lấy thông tin lớp thành công');
   } catch (error) {
@@ -129,7 +134,10 @@ exports.joinClass = async (req, res) => {
     }
 
     // 2. Kiểm tra đã tham gia chưa
-    if (classToJoin.studentIds.includes(req.user.id)) {
+    const alreadyJoined = classToJoin.studentIds.some(
+      (id) => id.toString() === req.user.id,
+    );
+    if (alreadyJoined) {
       return errorResponse(res, 'Bạn đã tham gia lớp học này rồi', 400);
     }
 
@@ -186,7 +194,18 @@ exports.removeStudent = async (req, res) => {
     const { studentId } = req.body;
     const classId = req.params.id;
 
-    // Logic: Xóa ID học viên khỏi mảng studentIds của Class
+    const classData = await Class.findById(classId);
+    if (!classData) {
+      return errorResponse(res, 'Không tìm thấy lớp học', 404);
+    }
+
+    if (
+      req.user.role !== 'admin' &&
+      classData.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền thực hiện hành động này', 403);
+    }
+
     const updatedClass = await Class.findByIdAndUpdate(
       classId,
       { $pull: { studentIds: studentId } },

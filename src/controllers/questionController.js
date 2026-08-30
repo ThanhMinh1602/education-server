@@ -7,6 +7,31 @@ const {
   listResponse,
 } = require('../utils/response');
 
+// --- HELPER: Ẩn đáp án khi trả về cho học viên ---
+const stripAnswerFromQuestion = (question) => {
+  const q = question.toObject ? question.toObject() : { ...question };
+  if (!q.content) return q;
+
+  const content = { ...q.content };
+
+  if (q.type === 'MULTIPLE_CHOICE' && content.options) {
+    content.options = content.options.map(({ id, text }) => ({ id, text }));
+  } else if (q.type === 'TRUE_FALSE') {
+    delete content.isTrue;
+    if (content.options) {
+      content.options = content.options.map(({ id, text }) => ({ id, text }));
+    }
+  } else if (q.type === 'TYPING') {
+    delete content.keywords;
+    delete content.acceptableAnswers;
+  } else if (q.type === 'ARRANGE') {
+    delete content.correctOrder;
+    delete content.correctText;
+  }
+
+  return { ...q, content };
+};
+
 // =========================================================
 // PHẦN 1: QUẢN LÝ LEVEL (CẤP ĐỘ)
 // =========================================================
@@ -66,11 +91,9 @@ exports.getPacks = async (req, res) => {
 
     let query = {};
 
-    // Nếu là Học viên -> Chỉ xem được gói Public hoặc gói của GV mình (Logic này mở rộng sau)
-    // Hiện tại tạm để: Ai cũng xem được gói Public, GV xem được gói của mình
     if (req.user.role === 'teacher') {
       query = { $or: [{ isPublic: true }, { teacherId: req.user.id }] };
-    } else {
+    } else if (req.user.role === 'student') {
       query = { isPublic: true };
     }
 
@@ -93,6 +116,28 @@ exports.getPacks = async (req, res) => {
   }
 };
 
+// @desc    Xóa gói câu hỏi (kèm toàn bộ câu hỏi trong gói)
+exports.deletePack = async (req, res) => {
+  try {
+    const pack = await QuestionPack.findById(req.params.id);
+    if (!pack) return errorResponse(res, 'Gói câu hỏi không tồn tại', 404);
+
+    if (
+      req.user.role !== 'admin' &&
+      pack.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền xóa gói này', 403);
+    }
+
+    await Question.deleteMany({ packId: pack._id });
+    await pack.deleteOne();
+
+    return successResponse(res, null, 'Đã xóa gói câu hỏi');
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
 // =========================================================
 // PHẦN 3: QUẢN LÝ QUESTION (CÂU HỎI)
 // =========================================================
@@ -100,7 +145,7 @@ exports.getPacks = async (req, res) => {
 // @desc    Thêm câu hỏi vào gói
 exports.createQuestion = async (req, res) => {
   try {
-    const { packId, type, content, point } = req.body;
+    const { packId, type, content, point, explanation, mediaUrl, mediaType } = req.body;
 
     // 1. Kiểm tra gói có tồn tại không
     const pack = await QuestionPack.findById(packId);
@@ -118,8 +163,11 @@ exports.createQuestion = async (req, res) => {
     const question = await Question.create({
       packId,
       type,
-      content, // JSON linh động
+      content,
       point: point || 1,
+      explanation: explanation || '',
+      mediaUrl: mediaUrl || '',
+      mediaType: mediaType || 'NONE',
     });
 
     // 4. Cập nhật số lượng câu hỏi trong Pack (Để hiển thị UI cho nhanh)
@@ -137,13 +185,52 @@ exports.getQuestionsByPack = async (req, res) => {
   try {
     const { packId } = req.params;
 
+    const pack = await QuestionPack.findById(packId);
+    if (!pack) return errorResponse(res, 'Gói câu hỏi không tồn tại', 404);
+
     const questions = await Question.find({ packId });
+
+    const isOwner =
+      req.user.role === 'admin' ||
+      pack.teacherId.toString() === req.user.id;
+
+    const data = isOwner
+      ? questions
+      : questions.map(stripAnswerFromQuestion);
 
     return successResponse(
       res,
-      questions,
-      `Lấy thành công ${questions.length} câu hỏi`,
+      data,
+      `Lấy thành công ${data.length} câu hỏi`,
     );
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
+// @desc    Cập nhật câu hỏi (không đổi loại)
+exports.updateQuestion = async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+    if (!question) return errorResponse(res, 'Câu hỏi không tồn tại', 404);
+
+    const pack = await QuestionPack.findById(question.packId);
+    if (
+      req.user.role !== 'admin' &&
+      pack.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền sửa câu hỏi này', 403);
+    }
+
+    const { content, point, explanation, mediaUrl, mediaType } = req.body;
+    if (content !== undefined) question.content = content;
+    if (point !== undefined) question.point = point;
+    if (explanation !== undefined) question.explanation = explanation;
+    if (mediaUrl !== undefined) question.mediaUrl = mediaUrl;
+    if (mediaType !== undefined) question.mediaType = mediaType;
+
+    await question.save();
+    return successResponse(res, question, 'Cập nhật câu hỏi thành công');
   } catch (error) {
     return errorResponse(res, error);
   }
@@ -155,7 +242,14 @@ exports.deleteQuestion = async (req, res) => {
     const question = await Question.findById(req.params.id);
     if (!question) return errorResponse(res, 'Câu hỏi không tồn tại', 404);
 
-    // Giảm số lượng trong Pack
+    const pack = await QuestionPack.findById(question.packId);
+    if (
+      req.user.role !== 'admin' &&
+      pack.teacherId.toString() !== req.user.id
+    ) {
+      return errorResponse(res, 'Bạn không có quyền xóa câu hỏi này', 403);
+    }
+
     await QuestionPack.findByIdAndUpdate(question.packId, {
       $inc: { totalQuestions: -1 },
     });
